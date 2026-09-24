@@ -1,0 +1,10 @@
+{
+  "id": "nl2latex-snippets",
+  "name": "NL2LaTeX Snippets",
+  "version": "1.0.0",
+  "minAppVersion": "1.4.0",
+  "description": "Motore di conversione da linguaggio naturale a LaTeX. Supporta snippet matematici, tabelle, grafici e altro.",
+  "author": "antodellarte",
+  "authorUrl": "https://github.com/antodellarte",
+  "isDesktopOnly": false
+}
