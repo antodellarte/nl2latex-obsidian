@@ -5,6 +5,9 @@
 [![Obsidian Plugin](https://img.shields.io/badge/Obsidian-Plugin-7C3AED?logo=obsidian)](https://obsidian.md/)
 ![License](https://img.shields.io/github/license/antodellarte/nl2latex-obsidian)
 
+![NL2LaTeX Snippets Demo](assets/demo.gif)
+
+
 🌍 **Choose Language / Scegli la lingua:** 
 - [🇬🇧 English Documentation](#english-documentation)
 - [🇮🇹 Guida in Italiano](#italian-documentation)
