@@ -21,19 +21,16 @@ export class NL2LatexSettingTab extends PluginSettingTab {
 	private displayImpl(): void {
 		const { containerEl } = this;
 		containerEl.empty();
-
-		new Setting(containerEl).setName("Impostazioni Generali").setHeading();
 		containerEl.createEl("p", {
 			text:
-				"Scrivi espressioni matematiche in linguaggio naturale (italiano o inglese, anche mescolati) " +
-				"e convertile in LaTeX. Esempio: 'integral of x squared plus 3x from 0 to pi'.",
+				"Write mathematical expressions in natural language (Italian or English, even mixed) " + 
+				"and convert them to LaTeX. Example: 'integral of x squared plus 3x from 0 to pi'.",
 		});
 
-		new Setting(containerEl).setName("Marcatori rapidi").setHeading();
 
 		new Setting(containerEl)
-			.setName("Marcatore di apertura")
-			.setDesc("Testo che segnala l'inizio dell'espressione da convertire (es. ';;').")
+			.setName("Opening marker")
+			.setDesc("Text that signals the start of the expression to be converted (e.g., ';;').")
 			.addText((text) =>
 				text.setValue(this.plugin.settings.openMarker).onChange(async (value) => {
 					this.plugin.settings.openMarker = value;
@@ -42,8 +39,8 @@ export class NL2LatexSettingTab extends PluginSettingTab {
 			);
 
 		new Setting(containerEl)
-			.setName("Marcatore di chiusura")
-			.setDesc("Testo che segnala la fine dell'espressione da convertire (es. ';;').")
+			.setName("Closing marker")
+			.setDesc("Text that signals the end of the expression to be converted (e.g., ';;').")
 			.addText((text) =>
 				text.setValue(this.plugin.settings.closeMarker).onChange(async (value) => {
 					this.plugin.settings.closeMarker = value;
@@ -52,10 +49,10 @@ export class NL2LatexSettingTab extends PluginSettingTab {
 			);
 
 		new Setting(containerEl)
-			.setName("Conversione automatica al marcatore di chiusura")
+			.setName("Auto-convert on marker")
 			.setDesc(
-				"Se attivo, digitando il marcatore di chiusura la conversione avviene immediatamente. " +
-					"Se disattivo, usa il comando/hotkey impostato."
+				"If enabled, the conversion will be triggered automatically when the closing marker is typed. " +
+					"If disabled, use the command/hotkey set."
 			)
 			.addToggle((toggle) =>
 				toggle.setValue(this.plugin.settings.autoConvertOnMarker).onChange(async (value) => {
@@ -64,17 +61,16 @@ export class NL2LatexSettingTab extends PluginSettingTab {
 				})
 			);
 
-		new Setting(containerEl).setName("Formattazione output").setHeading();
 
 		new Setting(containerEl)
-			.setName("Delimitatori matematici")
-			.setDesc("Come racchiudere il LaTeX generato.")
+			.setName("Math delimiter style")
+			.setDesc("How to wrap the LaTeX output: inline, block, or none (just the LaTeX code).")
 			.addDropdown((drop) =>
 				drop
 					.addOptions({
 						"$...$": "Inline: $...$",
-						"$$...$$": "Blocco: $$...$$",
-						"none": "Nessuno (solo codice LaTeX)",
+						"$$...$$": "Block: $$...$$",
+						"none": "None (just the LaTeX code)",
 					})
 					.setValue(this.plugin.settings.dollarStyle)
 					.onChange(async (value) => {
@@ -83,11 +79,10 @@ export class NL2LatexSettingTab extends PluginSettingTab {
 					})
 			);
 
-		new Setting(containerEl).setName("Snippet regex personalizzati").setHeading();
 		containerEl.createEl("p", {
 			text:
-				"Regole eseguite PRIMA del motore di linguaggio naturale, in ordine. " +
-				"Pattern in sintassi regex JavaScript; usa $1, $2... nel campo 'Sostituzione' per riferirti ai gruppi tra parentesi del pattern.",
+				"Rules executed BEFORE the natural language engine, in order. " +
+				"Patterns are regular expressions. Use $1, $2, ... for captured groups in the replacement.",
 		});
 
 		this.plugin.settings.regexSnippets.forEach((snippet, index) => {
@@ -96,13 +91,13 @@ export class NL2LatexSettingTab extends PluginSettingTab {
 
 		new Setting(containerEl).addButton((btn) =>
 			btn
-				.setButtonText("+ Aggiungi snippet")
+				.setButtonText("+ Add snippet")
 				.setCta()
 				.onClick(async () => {
 					const newSnippet: RegexSnippet = {
 						id: `custom-${Date.now()}`,
-						label: "Vettore (Esempio)",
-						pattern: "vettore (?:di )?([a-zA-Z0-9]+)",
+						label: "Vector (Example)",
+						pattern: "vector (?:of )?([a-zA-Z0-9]+)",
 						flags: "i",
 						replacement: "\\vec{$1}",
 						enabled: true,
@@ -113,7 +108,6 @@ export class NL2LatexSettingTab extends PluginSettingTab {
 				})
 		);
 
-		new Setting(containerEl).setName("Guida rapida costrutti riconosciuti").setHeading();
 		const list = containerEl.createEl("ul");
 		const examples = [
 			"integral of X from A to B  /  integrale di X da A a B",
@@ -125,14 +119,12 @@ export class NL2LatexSettingTab extends PluginSettingTab {
 	}
 
 	private renderSnippetRow(containerEl: HTMLElement, snippet: RegexSnippet, index: number) {
-		// Crea un box visivo (Card) per raggruppare i campi dello snippet
 		const card = containerEl.createDiv({
 			attr: {
 				style: "border: 1px solid var(--background-modifier-border); border-radius: 6px; padding: 15px; margin-bottom: 15px; background-color: var(--background-secondary-alt);"
 			}
 		});
 
-		// 1. Intestazione: Nome, interruttore e cestino
 		new Setting(card)
 			.setName(snippet.label || `Snippet ${index + 1}`)
 			.addToggle((toggle) =>
@@ -144,7 +136,7 @@ export class NL2LatexSettingTab extends PluginSettingTab {
 			.addExtraButton((btn: ExtraButtonComponent) =>
 				btn
 					.setIcon("trash")
-					.setTooltip("Elimina snippet")
+					.setTooltip("Delete snippet")
 					.onClick(async () => {
 						this.plugin.settings.regexSnippets = this.plugin.settings.regexSnippets.filter(
 							(s) => s.id !== snippet.id
@@ -154,10 +146,9 @@ export class NL2LatexSettingTab extends PluginSettingTab {
 					})
 			);
 
-		// 2. Campo Etichetta su una riga separata
 		new Setting(card)
-			.setName("Etichetta")
-			.setDesc("Nome descrittivo per questo snippet")
+			.setName("Label")
+			.setDesc("Name of the snippet, for display purposes.")
 			.addText((text) =>
 				text
 					.setPlaceholder("Es: Radice quadrata")
@@ -168,12 +159,12 @@ export class NL2LatexSettingTab extends PluginSettingTab {
 					})
 			);
 
-		// 3. Campo Pattern su una riga separata
 		new Setting(card)
 			.setName("Pattern (RegEx)")
+			.setDesc("Regular expression pattern to match.")
 			.addText((text) =>
 				text
-					.setPlaceholder("Es: radice di (.+)")
+					.setPlaceholder("Es: root of (.+)")
 					.setValue(snippet.pattern)
 					.onChange(async (value) => {
 						snippet.pattern = value;
@@ -181,9 +172,9 @@ export class NL2LatexSettingTab extends PluginSettingTab {
 					})
 			);
 
-		// 4. Campo Sostituzione su una riga separata
 		new Setting(card)
-			.setName("Sostituzione")
+			.setName("Replacement")
+			.setDesc("Text to replace the matched pattern with.")
 			.addText((text) =>
 				text
 					.setPlaceholder("Es: \\sqrt{$1}")

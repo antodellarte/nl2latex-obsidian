@@ -50,7 +50,7 @@ export default class NL2LatexPlugin extends Plugin {
 	convertSelection(editor: Editor) {
 		const selection = editor.getSelection();
 		if (!selection || selection.trim().length === 0) {
-			new Notice("NL2LaTeX: nessun testo selezionato.");
+			new Notice("Nl2LaTeX: No text selected for conversion.");
 			return;
 		}
 		const latex = convert(selection, this.settings);
@@ -71,7 +71,7 @@ export default class NL2LatexPlugin extends Plugin {
 		const openIdx = searchArea.lastIndexOf(open);
 
 		if (openIdx === -1 || closeIdx === -1 || closeIdx <= openIdx) {
-			new Notice(`NL2LaTeX: nessun blocco tra "${open}" e "${close}" trovato prima del cursore.`);
+			new Notice(`NL2LaTeX: No block between "${open}" and "${close}" found before the cursor.`);
 			return;
 		}
 
