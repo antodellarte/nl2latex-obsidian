@@ -22,7 +22,7 @@ export class NL2LatexSettingTab extends PluginSettingTab {
 		const { containerEl } = this;
 		containerEl.empty();
 
-		new Setting(containerEl).setName("NL2LaTeX Snippets").setHeading();
+		new Setting(containerEl).setName("Impostazioni Generali").setHeading();
 		containerEl.createEl("p", {
 			text:
 				"Scrivi espressioni matematiche in linguaggio naturale (italiano o inglese, anche mescolati) " +

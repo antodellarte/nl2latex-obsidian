@@ -373,8 +373,7 @@ export function convertNaturalLanguageToLatex(input: string): string {
 			default:
 				return renderExpression(normalized);
 		}
-	} catch (e) {
-		console.warn("NL2LaTeX Parsing Fallback:", e);
+	} catch {
 		return renderExpression(normalized);
 	}
 }
