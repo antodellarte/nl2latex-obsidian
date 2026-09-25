@@ -1,6 +1,6 @@
-import { App, ExtraButtonComponent, PluginSettingTab, Setting, Notice } from "obsidian";
+import { App, ExtraButtonComponent, PluginSettingTab, Setting} from "obsidian";
 import NL2LatexPlugin from "./main";
-import { RegexSnippet } from "./parser";
+import { NL2LatexSettings, RegexSnippet } from "./parser";
 
 export class NL2LatexSettingTab extends PluginSettingTab {
 	plugin: NL2LatexPlugin;
@@ -14,18 +14,22 @@ export class NL2LatexSettingTab extends PluginSettingTab {
 		this.displayImpl();
 	}
 
+	getSettingDefinitions() {
+		return [];
+	}
+
 	private displayImpl(): void {
 		const { containerEl } = this;
 		containerEl.empty();
 
-		containerEl.createEl("h2", { text: "NL2LaTeX Snippets" });
+		new Setting(containerEl).setName("NL2LaTeX Snippets").setHeading();
 		containerEl.createEl("p", {
 			text:
 				"Scrivi espressioni matematiche in linguaggio naturale (italiano o inglese, anche mescolati) " +
 				"e convertile in LaTeX. Esempio: 'integral of x squared plus 3x from 0 to pi'.",
 		});
 
-		containerEl.createEl("h3", { text: "Marcatori rapidi" });
+		new Setting(containerEl).setName("Marcatori rapidi").setHeading();
 
 		new Setting(containerEl)
 			.setName("Marcatore di apertura")
@@ -60,7 +64,7 @@ export class NL2LatexSettingTab extends PluginSettingTab {
 				})
 			);
 
-		containerEl.createEl("h3", { text: "Formattazione output" });
+		new Setting(containerEl).setName("Formattazione output").setHeading();
 
 		new Setting(containerEl)
 			.setName("Delimitatori matematici")
@@ -74,12 +78,12 @@ export class NL2LatexSettingTab extends PluginSettingTab {
 					})
 					.setValue(this.plugin.settings.dollarStyle)
 					.onChange(async (value) => {
-						this.plugin.settings.dollarStyle = value as any;
+						this.plugin.settings.dollarStyle = value as NL2LatexSettings["dollarStyle"];
 						await this.plugin.saveSettings();
 					})
 			);
 
-		containerEl.createEl("h3", { text: "Snippet regex personalizzati" });
+		new Setting(containerEl).setName("Snippet regex personalizzati").setHeading();
 		containerEl.createEl("p", {
 			text:
 				"Regole eseguite PRIMA del motore di linguaggio naturale, in ordine. " +
@@ -109,7 +113,7 @@ export class NL2LatexSettingTab extends PluginSettingTab {
 				})
 		);
 
-		containerEl.createEl("h3", { text: "Guida rapida costrutti riconosciuti" });
+		new Setting(containerEl).setName("Guida rapida costrutti riconosciuti").setHeading();
 		const list = containerEl.createEl("ul");
 		const examples = [
 			"integral of X from A to B  /  integrale di X da A a B",

@@ -142,9 +142,7 @@ for (const f of FLAT) {
 
 export function normalizeToTokens(input: string): string {
 	let s = " " + input.trim() + " ";
-	
-	// CORREZIONE: usiamo p1 e p2 per separare la parola dallo spazio
-	s = s.replace(SYNONYM_REGEX, (match, p1, p2) => {
+		s = s.replace(SYNONYM_REGEX, (match: string, p1: string, p2: string) => {		
 		const canon = VARIANT_TO_CANON.get(p2.toLowerCase());
 		return canon ? `${p1}@@${canon}@@ ` : match;
 	});
@@ -198,22 +196,17 @@ function readFreeTextUntil(c: Cursor, stopTokens: string[]): string {
 function renderExpression(raw: string): string {
 	let s = raw;
 
-	s = s.replace(/([^\s@]+(?:\s*@@[A-Z_]+@@\s*[^\s@]*)*)\s*@@SQUARED@@/g, (_m, base) => `${wrapIfNeeded(base)}^2`);
-	s = s.replace(/([^\s@]+(?:\s*@@[A-Z_]+@@\s*[^\s@]*)*)\s*@@CUBED@@/g, (_m, base) => `${wrapIfNeeded(base)}^3`);
-	s = s.replace(/([^\s@]+)\s*@@TO_THE_POWER@@\s*([^\s@]+)/g, (_m, base, exp) => `${wrapIfNeeded(base)}^{${exp}}`);
+	s = s.replace(/([^\s@]+(?:\s*@@[A-Z_]+@@\s*[^\s@]*)*)\s*@@SQUARED@@/g, (_m: string, base: string) => `${wrapIfNeeded(base)}^2`);
+	s = s.replace(/([^\s@]+(?:\s*@@[A-Z_]+@@\s*[^\s@]*)*)\s*@@CUBED@@/g, (_m: string, base: string) => `${wrapIfNeeded(base)}^3`);
+	s = s.replace(/([^\s@]+)\s*@@TO_THE_POWER@@\s*([^\s@]+)/g, (_m: string, base: string, exp: string) => `${wrapIfNeeded(base)}^{${exp}}`);
 	s = s.replace(/@@SIN@@\s*([^\s@]+)/g, "\\sin($1)");
 	s = s.replace(/@@COS@@\s*([^\s@]+)/g, "\\cos($1)");
 	s = s.replace(/@@TAN@@\s*([^\s@]+)/g, "\\tan($1)");
 	s = s.replace(/@@LN@@\s*([^\s@]+)/g, "\\ln($1)");
 	s = s.replace(/@@LOG@@\s*([^\s@]+)/g, "\\log($1)");
 
-	s = s.replace(/@@SQRT@@\s*([^\s@]+(?:\s*[^\s@]+)*)/g, (_m, inner) => `\\sqrt{${inner.trim()}}`);
-
-	s = s.replace(/@@PLUS@@/g, " + ");
-	s = s.replace(/@@MINUS@@/g, " - ");
-	s = s.replace(/@@TIMES@@/g, " \\cdot ");
-	s = s.replace(/@@DIVIDED_BY@@/g, " / ");
-	s = s.replace(/@@PI@@/g, "\\pi");
+	s = s.replace(/@@SQRT@@\s*([^\s@]+(?:\s*[^\s@]+)*)/g, (_m: string, inner: string) => `\\sqrt{${inner.trim()}}`);
+	
 	s = s.replace(/@@E_CONST@@/g, "e");
 	s = s.replace(/@@ALPHA@@/g, "\\alpha");
 	s = s.replace(/@@BETA@@/g, "\\beta");
@@ -250,22 +243,6 @@ function wrapIfNeeded(base: string): string {
 	return `(${b})`;
 }
 
-function stripOuterParens(s: string): string {
-	const t = s.trim();
-	if (t.startsWith("(") && t.endsWith(")")) {
-		let depth = 0;
-		for (let i = 0; i < t.length; i++) {
-			if (t[i] === "(") depth++;
-			if (t[i] === ")") depth--;
-			if (depth === 0 && i < t.length - 1) return t;  
-		}
-		return t.slice(1, -1);
-	}
-	return t;
-}
-
-
-
 function parseIntegral(c: Cursor): string {
 	consumeToken(c); 
 	let integrand = readFreeTextUntil(c, ["FROM", "WITH_RESPECT_TO"]);
@@ -290,7 +267,7 @@ function parseIntegral(c: Cursor): string {
 }
 
 function wrapForIntegrand(latex: string): string {
-	const needsParens = /[+\-]/.test(latex.replace(/\\[a-zA-Z]+/g, "")) && !latex.startsWith("(");
+	const needsParens = /[+-]/.test(latex.replace(/\\[a-zA-Z]+/g, "")) && !latex.startsWith("(");
 	return needsParens ? `(${latex})` : latex;
 }
 
@@ -401,7 +378,7 @@ export function convertNaturalLanguageToLatex(input: string): string {
 			default:
 				return renderExpression(normalized);
 		}
-	} catch (e) {
+	} catch (_e) {
 		return renderExpression(normalized);
 	}
 }

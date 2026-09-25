@@ -15,7 +15,6 @@ export default class NL2LatexPlugin extends Plugin {
 			editorCallback: (editor: Editor) => {
 				this.convertSelection(editor);
 			},
-			hotkeys: [{ modifiers: ["Mod", "Shift"], key: "l" }],
 		});
 
 		this.addCommand({
@@ -90,7 +89,8 @@ export default class NL2LatexPlugin extends Plugin {
 	onunload() {}
 
 	async loadSettings() {
-		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+		const loadedData = (await this.loadData()) as Partial<NL2LatexSettings> | null;
+		this.settings = Object.assign({}, DEFAULT_SETTINGS, loadedData);
 	}
 
 	async saveSettings() {
