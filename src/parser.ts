@@ -79,12 +79,13 @@ const SYNONYMS: Array<{ canon: Canon; variants: string[] }> = [
 	{ canon: "MINUS", variants: [ "minus", "meno" ]},
 	{ canon: "TIMES", variants: [ "times", "multiplied by", "per", "moltiplicato per", "volte" ]},
 	{ canon: "DIVIDED_BY", variants: [ "divided by", "over", "diviso", "diviso per", "fratto" ]},
-	{ canon: "SIN", variants: [ "sine of", "seno di", "sin", "sen" ]},
-	{ canon: "COS", variants: [ "cosine of", "coseno di", "cos" ]},
-	{ canon: "TAN", variants: [ "tangent of", "tangente di", "tan", "tg" ]},
-	{ canon: "LN", variants: [ "natural log of", "logaritmo naturale di", "ln" ]},
-	{ canon: "LOG", variants: [ "log base", "logarithm of", "logaritmo di", "log" ]},
-	{ canon: "PI", variants: [ "pi" ]},
+	{ canon: "OF", variants: [ "of", "di" ]},
+	{ canon: "SIN", variants: [ "sine of", "sin of", "seno di", "sin", "sen" ]},
+	{ canon: "COS", variants: [ "cosine of", "cos of", "coseno di", "cos" ]},
+	{ canon: "TAN", variants: [ "tangent of", "tan of", "tangente di", "tan", "tg" ]},
+	{ canon: "LN", variants: [ "natural log of", "ln of", "logaritmo naturale di", "ln" ]},
+	{ canon: "LOG", variants: [ "log base", "logarithm of", "log of", "logaritmo di", "log" ]},
+	{ canon: "PI", variants: [ "pi greco", "pi" ]},
 	{ canon: "E_CONST", variants: [ "euler", "eulero" ]},
     
 	{ canon: "ALPHA", variants: [ "alpha", "alfa" ]},
@@ -199,12 +200,14 @@ function renderExpression(raw: string): string {
 	s = s.replace(/([^\s@]+(?:\s*@@[A-Z_]+@@\s*[^\s@]*)*)\s*@@SQUARED@@/g, (_m: string, base: string) => `${wrapIfNeeded(base)}^2`);
 	s = s.replace(/([^\s@]+(?:\s*@@[A-Z_]+@@\s*[^\s@]*)*)\s*@@CUBED@@/g, (_m: string, base: string) => `${wrapIfNeeded(base)}^3`);
 	s = s.replace(/([^\s@]+)\s*@@TO_THE_POWER@@\s*([^\s@]+)/g, (_m: string, base: string, exp: string) => `${wrapIfNeeded(base)}^{${exp}}`);
-	s = s.replace(/@@SIN@@\s*([^\s@]+)/g, "\\sin($1)");
-	s = s.replace(/@@COS@@\s*([^\s@]+)/g, "\\cos($1)");
-	s = s.replace(/@@TAN@@\s*([^\s@]+)/g, "\\tan($1)");
-	s = s.replace(/@@LN@@\s*([^\s@]+)/g, "\\ln($1)");
-	s = s.replace(/@@LOG@@\s*([^\s@]+)/g, "\\log($1)");
+	s = s.replace(/@@SIN@@\s*(?:@@OF@@\s*)?([^\s@]+)/g, "\\sin($1)");
+	s = s.replace(/@@COS@@\s*(?:@@OF@@\s*)?([^\s@]+)/g, "\\cos($1)");
+	s = s.replace(/@@TAN@@\s*(?:@@OF@@\s*)?([^\s@]+)/g, "\\tan($1)");
+	s = s.replace(/@@LN@@\s*(?:@@OF@@\s*)?([^\s@]+)/g, "\\ln($1)");
+	s = s.replace(/@@LOG@@\s*(?:@@OF@@\s*)?([^\s@]+)/g, "\\log($1)");
 
+	s = s.replace(/@@LOG@@\s*([^\s@]+)\s*@@OF@@\s*([^\s@]+)/g, "\\log_{$1}($2)");
+	
 	s = s.replace(/@@SQRT@@\s*([^\s@]+(?:\s*[^\s@]+)*)/g, (_m: string, inner: string) => `\\sqrt{${inner.trim()}}`);
 	
 	s = s.replace(/@@E_CONST@@/g, "e");
@@ -359,38 +362,31 @@ export function convertNaturalLanguageToLatex(input: string): string {
 
 	try {
 		switch (first) {
-			case "INTEGRAL":
-				return parseIntegral(c);
-			case "DERIVATIVE":
-				return parseDerivative(c, false);
-			case "PARTIAL_DERIVATIVE":
-				return parseDerivative(c, true);
-			case "LIMIT":
-				return parseLimit(c);
-			case "SUM":
-				return parseSum(c, false);
-			case "PRODUCT":
-				return parseSum(c, true);
-			case "SQRT":
-				return parseSqrtLike(c, false);
-			case "NROOT":
-				return parseSqrtLike(c, true);
+			case "INTEGRAL": return parseIntegral(c);
+			case "DERIVATIVE": return parseDerivative(c, false);
+			case "PARTIAL_DERIVATIVE": return parseDerivative(c, true);
+			case "LIMIT": return parseLimit(c);
+			case "SUM": return parseSum(c, false);
+			case "PRODUCT": return parseSum(c, true);
+			case "SQRT": return parseSqrtLike(c, false);
+			case "NROOT": return parseSqrtLike(c, true);
 			default:
 				return renderExpression(normalized);
 		}
-	} catch (_e) {
+	} catch (e) {
+		console.warn("NL2LaTeX Parsing Fallback:", e);
 		return renderExpression(normalized);
 	}
 }
-
 
 export function applyRegexSnippets(input: string, snippets: RegexSnippet[]): string | null {
 	for (const snip of snippets) {
 		if (!snip.enabled) continue;
 		try {
 			const re = new RegExp(snip.pattern, snip.flags.includes("g") ? snip.flags : snip.flags + "g");
-			if (re.test(input)) {
-				return input.replace(re, snip.replacement);
+			const replaced = input.replace(re, snip.replacement);
+			if (replaced !== input) {
+				return replaced;
 			}
 		} catch {
 			continue;
@@ -398,8 +394,6 @@ export function applyRegexSnippets(input: string, snippets: RegexSnippet[]): str
 	}
 	return null;
 }
-
-
 
 export function convert(input: string, settings: NL2LatexSettings): string {
 	const trimmed = input.trim();
