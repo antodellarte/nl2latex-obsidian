@@ -61,6 +61,19 @@ export class NL2LatexSettingTab extends PluginSettingTab {
 				})
 			);
 
+		new Setting(containerEl)
+			.setName("Fraction separator")
+			.setDesc("Character that separates a complete numerator from 'fratto' or 'fraction' (default: comma).")
+			.addText((text) =>
+				text
+					.setPlaceholder(",")
+					.setValue(this.plugin.settings.fractionSeparator)
+					.onChange(async (value) => {
+						this.plugin.settings.fractionSeparator = value || ",";
+						await this.plugin.saveSettings();
+					})
+			);
+
 
 		new Setting(containerEl)
 			.setName("Math delimiter style")
@@ -96,10 +109,10 @@ export class NL2LatexSettingTab extends PluginSettingTab {
 				.onClick(async () => {
 					const newSnippet: RegexSnippet = {
 						id: `custom-${Date.now()}`,
-						label: "Vector (Example)",
-						pattern: "vector (?:of )?([a-zA-Z0-9]+)",
+						label: "Custom rule",
+						pattern: "your pattern here",
 						flags: "i",
-						replacement: "\\vec{$1}",
+						replacement: "your LaTeX replacement here",
 						enabled: true,
 					};
 					this.plugin.settings.regexSnippets.push(newSnippet);

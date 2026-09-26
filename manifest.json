@@ -1,7 +1,7 @@
 {
   "id": "nl-to-latex-snippets",
   "name": "NL2LaTeX Snippets",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "minAppVersion": "1.4.0",
   "description": "Motore di conversione da linguaggio naturale a LaTeX. Supporta snippet matematici, tabelle, grafici e altro.",
   "author": "antodellarte",

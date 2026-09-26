@@ -91,6 +91,9 @@ export default class NL2LatexPlugin extends Plugin {
 	async loadSettings() {
 		const loadedData = (await this.loadData()) as Partial<NL2LatexSettings> | null;
 		this.settings = Object.assign({}, DEFAULT_SETTINGS, loadedData);
+		this.settings.regexSnippets = this.settings.regexSnippets.filter(
+			(snippet) => snippet.id !== "builtin-sqrt-of" && snippet.id !== "builtin-infinity"
+		);
 	}
 
 	async saveSettings() {
